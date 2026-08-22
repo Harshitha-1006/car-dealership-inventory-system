@@ -14,6 +14,7 @@
   "license": "ISC",
   "description": "Car dealership inventory backend foundation",
   "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.9.1",
     "@prisma/client": "^7.9.1",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",

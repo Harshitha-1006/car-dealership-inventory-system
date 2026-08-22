@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import vehicleRoutes from './routes/vehicleRoutes';
 
 dotenv.config();
 
@@ -13,6 +14,8 @@ app.use(express.json());
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
+
+app.use('/api', vehicleRoutes);
 
 if (process.env.NODE_ENV !== 'test') {
   app.listen(PORT, () => {
