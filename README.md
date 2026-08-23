@@ -162,20 +162,6 @@ Snapshots:   0 total
 Time:        5.516 s, estimated 6 s
 ```
 
-## Screenshots
-
-### Login Page
-
-![Login Page](./screenshots/login.png)
-
-### Vehicle Dashboard
-
-![Vehicle Dashboard](./screenshots/dashboard.png)
-
-### Admin Controls
-
-![Admin Controls](./screenshots/admin-controls.png)
-
 ## My AI Usage
 
 I used Codex, Claude and figma during development to understand the project structure, authentication flow, Prisma setup, API routes, testing, and frontend implementation.
