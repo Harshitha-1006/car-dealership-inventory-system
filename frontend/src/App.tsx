@@ -4,6 +4,7 @@ import { Login } from './components/Login';
 import { Register } from './components/Register';
 import { VehicleDashboard } from './components/VehicleDashboard';
 import { AdminVehicleForm } from './components/AdminVehicleForm';
+import { Toast } from './components/Toast';
 import { useAuth } from './hooks/useAuth';
 import {
   createVehicle,
@@ -36,6 +37,7 @@ function App() {
   const [showAddVehicle, setShowAddVehicle] = useState(false);
   const [newVehicle, setNewVehicle] = useState(emptyVehicleForm);
   const [restockValues, setRestockValues] = useState<Record<number, number>>({});
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const { token, role, login, logout } = useAuth();
 
@@ -108,16 +110,21 @@ function App() {
 
   const handlePurchase = async (vehicleId: number) => {
     if (!token) {
-      setError('Please log in to purchase a vehicle.');
+      setToast({ message: 'Please log in to purchase a vehicle.', type: 'error' });
       return;
     }
 
+    const vehicle = vehicles.find((v) => v.id === vehicleId);
+
     try {
       await purchaseVehicle(token, vehicleId);
-      setSuccess('Vehicle purchased successfully');
+      setToast({
+        message: `Purchase successful — ${vehicle ? `${vehicle.make} ${vehicle.model}` : 'vehicle'}`,
+        type: 'success',
+      });
       await fetchInventory();
     } catch (err) {
-      setError((err as Error).message);
+      setToast({ message: (err as Error).message, type: 'error' });
     }
   };
 
@@ -223,7 +230,10 @@ function App() {
       />
 
       {error && <div className="form-alert error" style={{ maxWidth: 1200, margin: '0 auto 16px' }}>{error}</div>}
-      {success && <div className="form-alert success" style={{ maxWidth: 1200, margin: '0 auto 16px' }}>{success}</div>}
+
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />
+      )}
     </>
   );
 }

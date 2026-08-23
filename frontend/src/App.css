@@ -513,3 +513,39 @@ button {
     padding: 24px 18px;
   }
 }
+
+.toast-overlay {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+.toast-box {
+  padding: 14px 22px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  font-weight: 600;
+  color: white;
+  animation: toast-in 0.2s ease-out;
+}
+
+.toast-success {
+  background: #16a34a;
+}
+
+.toast-error {
+  background: #dc2626;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
