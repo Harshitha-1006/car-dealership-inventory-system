@@ -169,3 +169,17 @@ I used Codex, Claude and figma during development to understand the project stru
 AI was mainly used as a development assistant to help generate ideas, explain concepts, and speed up implementation. I reviewed the generated code, ran the application and tests, and checked the main features such as registration, login, vehicle operations, stock validation, and admin controls.
 
 The actual AI conversations and prompts used during development are included in PROMPTS.md.
+
+## Screenshots
+
+### Register Page
+![Register Page](./images/register.png)
+
+### Login Page
+![Login Page](./images/sign_in.png)
+
+### Dashboard
+![Dashboard](./images/dashboard.png)
+
+### Purchase Confirmation
+![Purchase Popup](./images/purchase.png)

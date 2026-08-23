@@ -1,5 +1,8 @@
 node_modules/
 dist/
 .env
+.env.test
+dev.db
+test.db
 *.db
 coverage/
