@@ -1,4 +1,5 @@
 import request from 'supertest';
+import jwt from 'jsonwebtoken';
 import app from '../index';
 import prisma from '../lib/prisma';
 
@@ -11,6 +12,37 @@ describe('Vehicle API', () => {
     await prisma.$disconnect();
   });
 
+  it('returns 401 when fetching vehicles without a token', async () => {
+    const response = await request(app).get('/api/vehicles');
+
+    expect(response.status).toBe(401);
+    expect(response.body.message).toBe('Authentication token required');
+  });
+
+  it('returns 401 when searching vehicles without a token', async () => {
+    const response = await request(app).get('/api/vehicles/search').query({ make: 'Toyota' });
+
+    expect(response.status).toBe(401);
+    expect(response.body.message).toBe('Authentication token required');
+  });
+
+  it('returns 401 when purchasing a vehicle without a token', async () => {
+    const vehicle = await prisma.vehicle.create({
+      data: {
+        make: 'Toyota',
+        model: 'Corolla',
+        category: 'Sedan',
+        price: 24000,
+        quantity: 2,
+      },
+    });
+
+    const response = await request(app).post(`/api/vehicles/${vehicle.id}/purchase`);
+
+    expect(response.status).toBe(401);
+    expect(response.body.message).toBe('Authentication token required');
+  });
+
   it('creates a vehicle with valid data', async () => {
     const vehicleData = {
       make: 'Toyota',
@@ -20,7 +52,14 @@ describe('Vehicle API', () => {
       quantity: 5,
     };
 
-    const response = await request(app).post('/api/vehicles').send(vehicleData);
+    const adminToken = jwt.sign({ userId: 1, role: 'admin' }, process.env.JWT_SECRET || 'secret-key', {
+      expiresIn: '1h',
+    });
+
+    const response = await request(app)
+      .post('/api/vehicles')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send(vehicleData);
 
     expect(response.status).toBe(201);
     expect(response.body).toMatchObject(vehicleData);
@@ -28,23 +67,37 @@ describe('Vehicle API', () => {
   });
 
   it('returns 400 if required fields are missing', async () => {
-    const response = await request(app).post('/api/vehicles').send({
-      make: 'Toyota',
-      model: 'Corolla',
+    const adminToken = jwt.sign({ userId: 1, role: 'admin' }, process.env.JWT_SECRET || 'secret-key', {
+      expiresIn: '1h',
     });
+
+    const response = await request(app)
+      .post('/api/vehicles')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        make: 'Toyota',
+        model: 'Corolla',
+      });
 
     expect(response.status).toBe(400);
     expect(response.body.message).toMatch(/category|price|quantity/i);
   });
 
   it('returns 400 if price or quantity are negative', async () => {
-    const response = await request(app).post('/api/vehicles').send({
-      make: 'Honda',
-      model: 'Civic',
-      category: 'Sedan',
-      price: -100,
-      quantity: 2,
+    const adminToken = jwt.sign({ userId: 1, role: 'admin' }, process.env.JWT_SECRET || 'secret-key', {
+      expiresIn: '1h',
     });
+
+    const response = await request(app)
+      .post('/api/vehicles')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        make: 'Honda',
+        model: 'Civic',
+        category: 'Sedan',
+        price: -100,
+        quantity: 2,
+      });
 
     expect(response.status).toBe(400);
     expect(response.body.message).toMatch(/price|quantity/i);
@@ -58,7 +111,13 @@ describe('Vehicle API', () => {
       ],
     });
 
-    const response = await request(app).get('/api/vehicles');
+    const adminToken = jwt.sign({ userId: 1, role: 'admin' }, process.env.JWT_SECRET || 'secret-key', {
+      expiresIn: '1h',
+    });
+
+    const response = await request(app)
+      .get('/api/vehicles')
+      .set('Authorization', `Bearer ${adminToken}`);
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveLength(2);
@@ -73,8 +132,13 @@ describe('Vehicle API', () => {
       ],
     });
 
+    const adminToken = jwt.sign({ userId: 1, role: 'admin' }, process.env.JWT_SECRET || 'secret-key', {
+      expiresIn: '1h',
+    });
+
     const response = await request(app)
       .get('/api/vehicles/search')
+      .set('Authorization', `Bearer ${adminToken}`)
       .query({ make: 'Toyota', category: 'Sedan', minPrice: '22000', maxPrice: '30000' });
 
     expect(response.status).toBe(200);
@@ -89,8 +153,13 @@ describe('Vehicle API', () => {
       ],
     });
 
+    const adminToken = jwt.sign({ userId: 1, role: 'admin' }, process.env.JWT_SECRET || 'secret-key', {
+      expiresIn: '1h',
+    });
+
     const response = await request(app)
       .get('/api/vehicles/search')
+      .set('Authorization', `Bearer ${adminToken}`)
       .query({ make: 'BMW', category: 'SUV' });
 
     expect(response.status).toBe(200);
@@ -108,14 +177,26 @@ describe('Vehicle API', () => {
       },
     });
 
-    const response = await request(app).post(`/api/vehicles/${vehicle.id}/purchase`);
+    const adminToken = jwt.sign({ userId: 1, role: 'admin' }, process.env.JWT_SECRET || 'secret-key', {
+      expiresIn: '1h',
+    });
+
+    const response = await request(app)
+      .post(`/api/vehicles/${vehicle.id}/purchase`)
+      .set('Authorization', `Bearer ${adminToken}`);
 
     expect(response.status).toBe(200);
     expect(response.body.quantity).toBe(1);
   });
 
   it('returns 404 when trying to purchase a vehicle that does not exist', async () => {
-    const response = await request(app).post('/api/vehicles/999/purchase');
+    const adminToken = jwt.sign({ userId: 1, role: 'admin' }, process.env.JWT_SECRET || 'secret-key', {
+      expiresIn: '1h',
+    });
+
+    const response = await request(app)
+      .post('/api/vehicles/999/purchase')
+      .set('Authorization', `Bearer ${adminToken}`);
 
     expect(response.status).toBe(404);
     expect(response.body.message).toBe('Vehicle not found');
@@ -132,9 +213,16 @@ describe('Vehicle API', () => {
       },
     });
 
-    const response = await request(app).post(`/api/vehicles/${vehicle.id}/purchase`);
+    const adminToken = jwt.sign({ userId: 1, role: 'admin' }, process.env.JWT_SECRET || 'secret-key', {
+      expiresIn: '1h',
+    });
+
+    const response = await request(app)
+      .post(`/api/vehicles/${vehicle.id}/purchase`)
+      .set('Authorization', `Bearer ${adminToken}`);
 
     expect(response.status).toBe(400);
     expect(response.body.message).toBe('Vehicle quantity is 0 or less');
   });
 });
+

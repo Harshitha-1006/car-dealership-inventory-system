@@ -8,7 +8,14 @@ export interface AuthenticatedRequest extends Request {
   };
 }
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret-key';
+export const getJwtSecret = (): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret.trim() === '') {
+    return 'secret-key';
+  }
+
+  return secret;
+};
 
 export const authenticateToken = (
   req: AuthenticatedRequest,
@@ -24,7 +31,7 @@ export const authenticateToken = (
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload & {
+    const decoded = jwt.verify(token, getJwtSecret()) as JwtPayload & {
       userId?: number;
       role?: string;
     };

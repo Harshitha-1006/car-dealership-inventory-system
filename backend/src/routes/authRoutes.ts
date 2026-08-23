@@ -2,9 +2,9 @@ import { Router, Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import prisma from '../lib/prisma';
+import { getJwtSecret } from '../middleware/authMiddleware';
 
 const router = Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'secret-key';
 
 router.post('/auth/register', async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -80,7 +80,7 @@ router.post('/auth/login', async (req: Request, res: Response) => {
       userId: user.id,
       role: user.role,
     },
-    JWT_SECRET,
+    getJwtSecret(),
     { expiresIn: '1h' }
   );
 

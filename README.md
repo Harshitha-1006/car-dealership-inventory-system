@@ -1,235 +1,113 @@
 ﻿# Car Dealership Inventory System
 
-## 1. Project Overview
+A simple full-stack web application for managing car dealership inventory. Users can register, log in, view and search vehicles, and purchase vehicles when stock is available. Admin users can add, restock, and delete vehicles.
 
-This project is a simple car dealership inventory management system built with a Node.js/Express backend and a React + Vite frontend. The application allows users to register and log in, view vehicles, search the inventory, and purchase vehicles when stock is available.
+The project uses Prisma with SQLite for database management and JWT for authentication.
 
-Admin users can add new vehicles, restock inventory, and delete vehicles. The system uses Prisma with SQLite for persistence and JWT-based authentication for protected routes.
+## Features
 
-The project was designed as a small, working inventory system focused on the core dealership workflows rather than a large enterprise platform.
-
-## 2. Features
-
-- User registration
-- Login
-- JWT-based authentication
+- User registration and login
+- JWT authentication
 - User and admin roles
-- View all vehicles
-- Search vehicles by make, model, or category
-- Purchase vehicle with stock validation
-- Admin add vehicle
-- Admin restock vehicle
-- Admin delete vehicle
-- SQLite persistence through Prisma
+- View and search vehicles
+- Purchase vehicles with stock validation
+- Admin add, restock, and delete operations
+- SQLite database using Prisma
+- Backend testing with Jest and Supertest
 
-## 3. Technology Stack
+## Tech Stack
 
 ### Backend
+
 - Node.js
 - Express
 - TypeScript
 - Prisma
 - SQLite
 - bcrypt
-- JWT
+- JSON Web Token
 - Jest
 - Supertest
 
 ### Frontend
+
 - React
 - TypeScript
 - Vite
 - CSS
 
-## 4. Project Structure
+## Project Structure
 
 ```text
 car-dealership-inventory-system/
 ├── backend/
 │   ├── prisma/
-│   │   ├── schema.prisma
-│   │   └── seed.js
+│   │   └── schema.prisma
 │   ├── src/
 │   │   ├── __tests__/
-│   │   ├── lib/
-│   │   │   └── prisma.ts
 │   │   ├── middleware/
-│   │   │   └── authMiddleware.ts
 │   │   ├── routes/
-│   │   │   ├── authRoutes.ts
-│   │   │   └── vehicleRoutes.ts
-│   │   ├── index.ts
-│   │   └── ...
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── .env (optional, if configured locally)
+│   │   ├── lib/
+│   │   └── index.ts
+│   └── package.json
+│
 ├── frontend/
 │   ├── src/
 │   │   ├── App.tsx
 │   │   ├── App.css
-│   │   ├── main.tsx
-│   │   └── index.css
-│   ├── package.json
-│   └── vite.config.*
+│   │   └── main.tsx
+│   └── package.json
+│
 ├── README.md
 ├── PROMPTS.md
 └── .gitignore
-```
 
-## 5. API Endpoints
+API Endpoints
+Authentication
+Method	Endpoint	Description
+POST	/api/auth/register	Register a user
+POST	/api/auth/login	Login and receive a JWT
+Vehicles
+Method	Endpoint	Description
+GET	/api/vehicles	Get all vehicles
+GET	/api/vehicles/search	Search vehicles
+POST	/api/vehicles	Add a vehicle
+POST	/api/vehicles/:id/purchase	Purchase a vehicle
+POST	/api/vehicles/:id/restock	Restock a vehicle
+DELETE	/api/vehicles/:id	Delete a vehicle
 
-### Health
+Some routes require authentication, and admin operations require an admin role.
 
-```http
-GET /api/health
-```
-
-Returns a basic status object indicating the API is running.
-
-### Authentication
-
-```http
-POST /api/auth/register
-POST /api/auth/login
-```
-
-- Register creates a new user account.
-- Login validates credentials and returns a JWT token and role.
-
-### Vehicles
-
-```http
-GET /api/vehicles
-GET /api/vehicles/search
-POST /api/vehicles
-POST /api/vehicles/:id/purchase
-POST /api/vehicles/:id/restock
-DELETE /api/vehicles/:id
-```
-
-Notes:
-- `GET /api/vehicles` returns all vehicle records in ascending ID order.
-- `GET /api/vehicles/search` supports filtering by make, category, and price range.
-- `POST /api/vehicles` is protected and intended for admin use.
-- `POST /api/vehicles/:id/purchase` validates quantity before decrementing the stock.
-- `POST /api/vehicles/:id/restock` is protected and intended for admin use.
-- `DELETE /api/vehicles/:id` is protected and intended for admin use.
-
-### Authentication Requirements
-
-Routes that modify inventory require a valid Bearer token. Admin-level operations also require the user role to be `admin`.
-
-## 6. Backend Setup Instructions
-
-1. Open a terminal in the `backend` folder.
-2. Install dependencies:
-
-```bash
+Running the Backend
+cd backend
 npm install
-```
-
-3. Configure environment variables if needed. The project uses Prisma and JWT authentication, so a local `.env` file may be created with values such as:
-
-```env
-DATABASE_URL="file:./dev.db"
-JWT_SECRET="your-secret-key"
-```
-
-4. Apply the Prisma schema and initialize the SQLite database if needed. The project already includes Prisma configuration and a seed file.
-
-5. Run the database seed:
-
-```bash
-npm run seed
-```
-
-6. Start the backend server:
-
-```bash
+npx prisma migrate dev
 npm run dev
-```
 
-The backend serves the API on:
+The backend runs on:
 
-```text
 http://localhost:3000
-```
 
-## 7. Frontend Setup Instructions
-
-1. Open a terminal in the `frontend` folder.
-2. Install dependencies:
-
-```bash
+Running the Frontend
+cd frontend
 npm install
-```
-
-3. Start the Vite development server:
-
-```bash
 npm run dev
-```
 
-4. Open the local Vite URL shown in the terminal, typically:
+Open the Vite URL shown in the terminal, usually:
 
-```text
 http://localhost:5173
-```
 
-The frontend uses the backend API at:
-
-```text
-http://localhost:3000/api
-```
-
-## 8. Test Instructions
-
-The backend test suite is set up with Jest and Supertest.
-
-Run all existing backend tests:
-
-```bash
+Running Tests
 cd backend
 npm test
-```
 
-For coverage:
+For test coverage:
 
-```bash
-cd backend
 npm run test:coverage
-```
+My AI Usage
 
-## 9. My AI Usage
+I used Codex, Claude and figma during development to understand the project structure, authentication flow, Prisma setup, API routes, testing, and frontend implementation.
 
-I used ChatGPT and Codex during the development of this project.
+AI was mainly used as a development assistant to help generate ideas, explain concepts, and speed up implementation. I reviewed the generated code, ran the application and tests, and checked the main features such as registration, login, vehicle operations, stock validation, and admin controls.
 
-Specifically, I used ChatGPT to help me think through the app structure, backend route design, and authentication flow. I also used Codex to help generate and refine implementation steps for Prisma usage, Express routes, the vehicle inventory logic, and the React frontend behavior.
-
-I used both tools as assistants to speed up exploration and implementation, but I did not treat them as a substitute for checking the actual project behavior.
-
-## 10. Honest Reflection on AI Help and My Own Review
-
-AI was helpful in getting the project moving quickly. It helped me structure the backend, suggest the Prisma + SQLite setup, reason through JWT-based authentication, and propose the vehicle and inventory route logic. It also helped me draft the frontend structure and think through how the app should fetch and display vehicles.
-
-However, I personally reviewed every part of the implementation, checked the actual Prisma model and route behavior, and validated the working data flow in the real project. I tested the backend with the project test suite and reviewed how registration, login, stock validation, and admin actions work in the actual code.
-
-I understand the project is not a generic template or a one-click AI-generated app. The core behavior — user auth, admin controls, stock validation, and database-backed inventory — was reviewed and confirmed by me in the working application. I verified the API and database behavior instead of assuming the code was correct just because the generated output looked complete.
-
-## Screenshots
-
-### Login Screen
-
-<!-- Placeholder: add login screen screenshot here -->
-
-### Dashboard
-
-<!-- Placeholder: add vehicle dashboard screenshot here -->
-
-### Admin Inventory Controls
-
-<!-- Placeholder: add admin add/restock/delete screenshot here -->
-
-## Notes
-
-This project is intentionally focused on a practical and minimal inventory workflow. It does not include unrelated features beyond the implemented registration, login, inventory management, authentication, and purchase logic described in this document.
+The actual AI conversations and prompts used during development are included in PROMPTS.md.

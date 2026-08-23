@@ -26,6 +26,13 @@ describe('Admin vehicle routes', () => {
     expect(response.body.message).toBe('Authentication token required');
   });
 
+  it('returns 401 when updating a vehicle without a token', async () => {
+    const response = await request(app).put('/api/vehicles/1').send({ quantity: 3 });
+
+    expect(response.status).toBe(401);
+    expect(response.body.message).toBe('Authentication token required');
+  });
+
   it('returns 401 when token is invalid', async () => {
     const response = await request(app)
       .delete('/api/vehicles/1')
@@ -114,6 +121,46 @@ describe('Admin vehicle routes', () => {
 
     expect(response.status).toBe(200);
     expect(response.body.quantity).toBe(6);
+  });
+
+  it('allows an admin to update a vehicle', async () => {
+    const admin = await prisma.user.create({
+      data: {
+        email: 'admin-update@example.com',
+        password: 'hashed-password',
+        role: 'admin',
+      },
+    });
+
+    const vehicle = await prisma.vehicle.create({
+      data: {
+        make: 'Honda',
+        model: 'City',
+        category: 'Sedan',
+        price: 18000,
+        quantity: 3,
+      },
+    });
+
+    const token = createToken('admin', admin.id);
+
+    const response = await request(app)
+      .put(`/api/vehicles/${vehicle.id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        price: 21000,
+        quantity: 5,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toMatchObject({
+      id: vehicle.id,
+      make: 'Honda',
+      model: 'City',
+      category: 'Sedan',
+      price: 21000,
+      quantity: 5,
+    });
   });
 
   it('returns 404 for a nonexistent vehicle', async () => {
